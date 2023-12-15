@@ -1,5 +1,5 @@
 diff --git a/fplll/enum/enumerate_base.h b/fplll/enum/enumerate_base.h
-index 259e2c02..091ddceb 100644
+index 259e2c02..ee7fb412 100644
 --- a/fplll/enum/enumerate_base.h
 +++ b/fplll/enum/enumerate_base.h
 @@ -19,6 +19,7 @@
@@ -10,16 +10,17 @@ index 259e2c02..091ddceb 100644
  #include "fplll/enum/enumerate_ext_api.h"
  #include "fplll/fplll_config.h"
  #include "fplll/nr/nr.h"
-@@ -27,6 +28,8 @@
+@@ -27,6 +28,9 @@
  #include <cmath>
  #include <numeric>
  #include <vector>
 +#include <iostream>
 +#include <cassert>
++#include <list>
  
  FPLLL_BEGIN_NAMESPACE
  
-@@ -53,10 +56,50 @@ inline void roundto(double &dest, const double &src) { dest = round(src); }
+@@ -53,10 +57,50 @@ inline void roundto(double &dest, const double &src) { dest = round(src); }
  #define ENUM_ALWAYS_INLINE ALWAYS_INLINE
  #endif
  
@@ -70,7 +71,7 @@ index 259e2c02..091ddceb 100644
  
    inline uint64_t get_nodes(const int level = -1) const
    {
-@@ -67,6 +110,11 @@ public:
+@@ -67,6 +111,11 @@ public:
  
      return nodes[level];
    }
@@ -82,7 +83,7 @@ index 259e2c02..091ddceb 100644
    virtual ~EnumerationBase() {}
  
  protected:
-@@ -99,6 +147,17 @@ protected:
+@@ -99,6 +148,19 @@ protected:
  
    /* nodes count */
    array<uint64_t, FPLLL_EXTENUM_MAX_EXTENUM_DIM> nodes;
@@ -97,10 +98,12 @@ index 259e2c02..091ddceb 100644
 +  array<double, FPLLL_EXTENUM_MAX_EXTENUM_DIM> nodes_subtree_second_moment;
 +  array<double, FPLLL_EXTENUM_MAX_EXTENUM_DIM> avg_children;
 +  array<double, FPLLL_EXTENUM_MAX_EXTENUM_DIM> var_children;
++  list<double> subtree_sizes_as_visited;
++  bool store_subtrees_sequentially;
  
    template <int kk, int kk_start, bool dualenum, bool findsubsols, bool enable_reset> struct opts
    {
-@@ -144,6 +203,11 @@ protected:
+@@ -144,6 +206,11 @@ protected:
  
    inline bool next_pos_up()
    {
@@ -112,7 +115,7 @@ index 259e2c02..091ddceb 100644
      ++k;
      if (partdist[k] != 0.0)
      {
-@@ -154,7 +218,15 @@ protected:
+@@ -154,7 +221,15 @@ protected:
      else
      {
        if (k >= k_end)
@@ -128,7 +131,7 @@ index 259e2c02..091ddceb 100644
        k_max = k;
        if (is_svp)
        {
-@@ -168,6 +240,9 @@ protected:
+@@ -168,6 +243,9 @@ protected:
          dx[k]  = ddx[k] - dx[k];
        }
      }

@@ -3,7 +3,7 @@ import json
 import profile
 from random import gauss
 from matplotlib import legend_handler
-from sage.all import line, save, sqrt, log, prod, beta, list_plot, multi_graphics
+from sage.all import line, save, sqrt, log, prod, beta, list_plot, multi_graphics, histogram
 from bkz_simulators.sim import Sim, LLLProfile
 import sys
 sys.path.append("../LatticeHeuristics")
@@ -90,6 +90,7 @@ def gen_plots(data, plots_dir, lwe, bkz, subtree_root_level, _tour=None, _block=
         sqrt_subtree_avg = []
         biased_sample_variance_subtree = []
         unbiased_sample_variance_subtree = []
+        subtree_sizes_as_visited = []
         theory_subtree_avg_sim = {}
         theory_subtree_avg_gs2 = {}
         for index in tour_stats_tuple:
@@ -111,6 +112,7 @@ def gen_plots(data, plots_dir, lwe, bkz, subtree_root_level, _tour=None, _block=
             _b_samp_var = stats["avg_sqr_tot"] - stats["avg_tot"]**2
             biased_sample_variance_subtree.append((int(index.split("-")[0]), _b_samp_var))
             unbiased_sample_variance_subtree.append((int(index.split("-")[0]), stats["unb_samp_var_tot"]))
+            subtree_sizes_as_visited.append((index, stats["subtree_sizes_as_visited"]))
 
             from sage.all import pi, gamma
             k = subtree_root_level
@@ -167,6 +169,31 @@ def gen_plots(data, plots_dir, lwe, bkz, subtree_root_level, _tour=None, _block=
         save(g, filename+".png", dpi=dpi)
         save(g, filename+".pdf")
 
+        for ind, subtree_sizes in subtree_sizes_as_visited:
+            if int(ind.split("-")[0]) % 10 != 0 or len(subtree_sizes) <= 1:
+                continue
+            _subtree_sizes = [_ + 1 for _ in subtree_sizes] # +1 due to root node
+
+            # sizes as visited
+            filename = f"{plots_dir}/visit/{tour}-{ind}-subtree-sizes-as-visited"
+            g = line([(i, _subtree_sizes[i]) for i in range(len(_subtree_sizes))], dpi=dpi)
+            print(filename)
+            save(g, filename+".png", dpi=dpi)
+            # save(g, filename+".pdf")
+
+            # full histogram
+            filename = f"{plots_dir}/histogram/{tour}-{ind}-histogram-subtree-sizes"
+            g = histogram(_subtree_sizes, bins=int(max(_subtree_sizes)+1), dpi=dpi)
+            print(filename)
+            save(g, filename+".png", dpi=dpi)
+            # save(g, filename+".pdf")
+
+            # histogram except first very large subtree
+            filename = f"{plots_dir}/histogram-except-first/{tour}-{ind}-histogram-subtree-sizes"
+            g = histogram(_subtree_sizes[:-1], bins=int(max(_subtree_sizes[:-1])+1), dpi=dpi)
+            print(filename)
+            save(g, filename+".png", dpi=dpi)
+            # save(g, filename+".pdf")
 
         sim(bkz['beta'], 1)
         tour += 1
@@ -197,6 +224,9 @@ if __name__ == "__main__":
 
     plots_path = f"{args.plot_dir}/{args.subtree_root_level}"
     os.system('mkdir -p '+ plots_path)
+    os.system('mkdir -p '+ plots_path + '/histogram')
+    os.system('mkdir -p '+ plots_path + '/histogram-except-first')
+    os.system('mkdir -p '+ plots_path + '/visit')
     gen_plots(data, plots_path, lwe, bkz, args.subtree_root_level, _tour=args.tour, _block=args.block, treedata=treedata)
 
 def sims(lwe, bkz):

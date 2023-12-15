@@ -1,5 +1,5 @@
 diff --git a/fplll/enum/enumerate_base.cpp b/fplll/enum/enumerate_base.cpp
-index 1fa69da4..f78a8470 100644
+index 1fa69da4..b83b6325 100644
 --- a/fplll/enum/enumerate_base.cpp
 +++ b/fplll/enum/enumerate_base.cpp
 @@ -17,9 +17,14 @@
@@ -102,7 +102,7 @@ index 1fa69da4..f78a8470 100644
    enumerate_recursive_dispatch<dualenum, findsubsols, enable_reset>(k);
    return;
  #endif
-@@ -192,34 +260,131 @@ template <bool dualenum, bool findsubsols, bool enable_reset> void EnumerationBa
+@@ -192,34 +260,136 @@ template <bool dualenum, bool findsubsols, bool enable_reset> void EnumerationBa
    finished = false;
    while (!finished)
    {
@@ -131,6 +131,11 @@ index 1fa69da4..f78a8470 100644
 +        sqrt_size_subtree_avg = (sqrt_size_subtree_avg * (subtrees_visited_so_far-1) + std::sqrt(size_subtree) ) / subtrees_visited_so_far;
 +        sqr_size_subtree_avg = (sqr_size_subtree_avg * (subtrees_visited_so_far-1) + pow(size_subtree, 2.) ) / subtrees_visited_so_far;
 +        subtree_samp_var = (sqr_size_subtree_avg - pow(size_subtree_avg, 2.)) * subtrees_visited_so_far / (subtrees_visited_so_far - 1.); // unbiased sample variance
++        // store only first, to see how large it is
++        if (store_subtrees_sequentially) {
++          subtree_sizes_as_visited.push_back(size_subtree);
++          // store_subtrees_sequentially = false;
++        }
 +
 +        //resetting tree
 +        // std::cout << "resetting tree" << std::endl;
@@ -236,7 +241,7 @@ index 1fa69da4..f78a8470 100644
        if (dualenum)
        {
          for (int j = center_partsum_begin[k + 1]; j > k; --j)
-@@ -236,14 +401,170 @@ template <bool dualenum, bool findsubsols, bool enable_reset> void EnumerationBa
+@@ -236,14 +406,183 @@ template <bool dualenum, bool findsubsols, bool enable_reset> void EnumerationBa
        enumf newcenter = center_partsums[k][k + 1];
        center[k]       = newcenter;
        partdist[k]     = newdist;
@@ -394,7 +399,20 @@ index 1fa69da4..f78a8470 100644
 +  stats += std::string("\"avg_tot\": ")      + to_string(std::isnan(size_subtree_avg) ? -1 : size_subtree_avg) + std::string(",\n");
 +  stats += std::string("\"avg_sqrt_tot\": ") + to_string(std::isnan(sqrt_size_subtree_avg) ? -1 : sqrt_size_subtree_avg) + std::string(",\n");
 +  stats += std::string("\"avg_sqr_tot\": ") + to_string(std::isnan(sqr_size_subtree_avg) ? -1 : sqr_size_subtree_avg) + std::string(",\n");
-+  stats += std::string("\"unb_samp_var_tot\": ") + to_string(std::isnan(subtree_samp_var) ? 0 : subtree_samp_var) + std::string("\n"); // get nan when unbiasing with "n/(n-1)" factor at n = 1. => only one value, variance 0 (simplifies the plotting script)
++  stats += std::string("\"unb_samp_var_tot\": ") + to_string(std::isnan(subtree_samp_var) ? 0 : subtree_samp_var) + std::string(",\n"); // get nan when unbiasing with "n/(n-1)" factor at n = 1. => only one value, variance 0 (simplifies the plotting script)
++
++  stats += std::string("\"subtree_sizes_as_visited\": [ ");
++  bool add_comma = false;
++  for (const auto& value : subtree_sizes_as_visited) {
++    if (add_comma) {
++      stats += std::string(", ");
++    } else {
++      add_comma = true;
++    }
++    stats += to_string(value);
++  }
++  stats += std::string("]\n");
++
 +  stats += std::string("}\n");
 +  return stats;
 +}

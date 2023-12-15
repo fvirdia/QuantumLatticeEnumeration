@@ -1,5 +1,5 @@
 diff --git a/fplll/enum/enumerate.cpp b/fplll/enum/enumerate.cpp
-index b87977a4..78eb10e3 100644
+index b87977a4..ca2a30f3 100644
 --- a/fplll/enum/enumerate.cpp
 +++ b/fplll/enum/enumerate.cpp
 @@ -17,12 +17,16 @@
@@ -174,7 +174,7 @@ index b87977a4..78eb10e3 100644
  }
  
  template <typename ZT, typename FT> void EnumerationDyn<ZT, FT>::set_bounds()
-@@ -230,27 +344,50 @@ template <typename ZT, typename FT> void EnumerationDyn<ZT, FT>::set_bounds()
+@@ -230,27 +344,52 @@ template <typename ZT, typename FT> void EnumerationDyn<ZT, FT>::set_bounds()
  
  template <typename ZT, typename FT> void EnumerationDyn<ZT, FT>::process_solution(enumf newmaxdist)
  {
@@ -222,10 +222,12 @@ index b87977a4..78eb10e3 100644
 +  sqrt_size_subtree_avg = 0;
 +  sqr_size_subtree_avg = 0;
 +  subtree_samp_var = 0;
++  subtree_sizes_as_visited.clear();
++  store_subtrees_sequentially = true;
  
    set_bounds();
  
-@@ -266,6 +403,10 @@ template <typename ZT, typename FT> void EnumerationDyn<ZT, FT>::do_enumerate()
+@@ -266,6 +405,10 @@ template <typename ZT, typename FT> void EnumerationDyn<ZT, FT>::do_enumerate()
      enumerate_loop<false, true, true>();
    else if (!dual && !_evaluator.findsubsols && resetflag)
      enumerate_loop<false, false, true>();

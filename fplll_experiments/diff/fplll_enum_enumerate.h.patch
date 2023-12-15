@@ -1,5 +1,5 @@
 diff --git a/fplll/enum/enumerate.h b/fplll/enum/enumerate.h
-index 2361c6a3..74fd6ac8 100644
+index 2361c6a3..0c75fa29 100644
 --- a/fplll/enum/enumerate.h
 +++ b/fplll/enum/enumerate.h
 @@ -19,6 +19,7 @@
@@ -10,7 +10,7 @@ index 2361c6a3..74fd6ac8 100644
  #include <array>
  #include <fplll/enum/enumerate_base.h>
  #include <fplll/enum/enumerate_ext.h>
-@@ -26,17 +27,34 @@
+@@ -26,17 +27,36 @@
  #include <fplll/gso_interface.h>
  #include <memory>
  
@@ -43,10 +43,12 @@ index 2361c6a3..74fd6ac8 100644
 +    sqrt_size_subtree_avg = 0;
 +    sqr_size_subtree_avg = 0;
 +    subtree_samp_var = 0;
++    subtree_sizes_as_visited.clear();
++    store_subtrees_sequentially = true;
    }
  
    void enumerate(int first, int last, FT &fmaxdist, long fmaxdistexpo,
-@@ -78,36 +96,23 @@ private:
+@@ -78,36 +98,23 @@ private:
  template <typename ZT, typename FT> class Enumeration
  {
  public:
@@ -91,7 +93,7 @@ index 2361c6a3..74fd6ac8 100644
    }
  
    inline uint64_t get_nodes(const int level = -1) const
-@@ -117,6 +122,22 @@ public:
+@@ -117,6 +124,22 @@ public:
      return _nodes[level];
    }
  
@@ -114,7 +116,7 @@ index 2361c6a3..74fd6ac8 100644
    inline array<uint64_t, FPLLL_EXTENUM_MAX_EXTENUM_DIM> get_nodes_array() const { return _nodes; }
  
  private:
-@@ -126,6 +147,11 @@ private:
+@@ -126,6 +149,11 @@ private:
    std::unique_ptr<EnumerationDyn<ZT, FT>> enumdyn;
    std::unique_ptr<ExternalEnumeration<ZT, FT>> enumext;
    array<uint64_t, FPLLL_EXTENUM_MAX_EXTENUM_DIM> _nodes;
